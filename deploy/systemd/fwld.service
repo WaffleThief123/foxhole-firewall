@@ -1,0 +1,28 @@
+[Unit]
+Description=Foxhole Firewall Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/fwld -config /etc/foxhole-fw/config.yaml
+Restart=always
+RestartSec=5
+
+# Run as root (required for iptables/firewall access)
+User=root
+
+# Security hardening
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fwld
+
+[Install]
+WantedBy=multi-user.target

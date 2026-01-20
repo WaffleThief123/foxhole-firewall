@@ -1,0 +1,71 @@
+# Foxhole Firewall Daemon - Example Configuration
+# Copy to /etc/foxhole-fw/config.yaml and chmod 600
+
+logging:
+  level: info    # debug, info, warn, error
+  json: false    # true for structured JSON logs
+
+# Log file to monitor
+log:
+  path: /var/log/nginx/access.log
+  # Parser options: nginx_combined, apache_common, caddy, traefik
+  parser: nginx_combined
+
+# Firewall backend configuration
+backend:
+  # Backend type: iptables, http_api, vultr, proxmox
+  type: iptables
+
+  # iptables backend (Linux local firewall)
+  iptables:
+    table: filter
+    chain: INPUT
+
+  # HTTP API backend (generic webhook)
+  # http_api:
+  #   url: "https://firewall.example.com/api/v1/rules"
+  #   headers:
+  #     Authorization: "Bearer your-api-token"
+
+  # Vultr Cloud Firewall backend
+  # vultr:
+  #   api_key: "your-vultr-api-key"
+  #   firewall_id: "firewall-group-id"
+
+  # Proxmox VE firewall backend
+  # proxmox:
+  #   api_url: "https://proxmox.local:8006/api2/json"
+  #   token_id: "user@pam!tokenname"
+  #   token_secret: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  #   node: "pve1"
+  #   vmid: "100"  # optional: target specific VM instead of node
+
+  # IMPORTANT: Start with dry_run: true to test without banning
+  dry_run: true
+
+  # IPs/CIDRs that are never banned (add your own IP!)
+  whitelist:
+    - 127.0.0.1
+    - ::1
+    # - YOUR.IP.ADDRESS.HERE
+    # - 10.0.0.0/8
+
+# Ban rules - evaluated in order
+rules:
+  # General protection: ban IPs with too many errors
+  - id: general-protection
+    description: Ban IPs with excessive 4xx/5xx errors
+    method: GET
+    path: /
+    max_errors: 10      # threshold
+    window: 1m          # time window
+    ban_duration: 10m   # ban length
+
+  # Stricter rule for sensitive endpoints
+  # - id: api-protection
+  #   description: Protect API endpoints
+  #   method: POST
+  #   path: /api
+  #   max_errors: 5
+  #   window: 30s
+  #   ban_duration: 30m

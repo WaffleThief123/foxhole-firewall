@@ -1,0 +1,63 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosimple
+    - gocritic
+    - gofmt
+    - goimports
+    - misspell
+    - unconvert
+    - unparam
+    - nakedret
+    - prealloc
+    - nilerr
+    - errorlint
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment  # Too strict for this project
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - hugeParam  # Too strict
+
+  gofmt:
+    simplify: true
+
+  misspell:
+    locale: US
+
+  nakedret:
+    max-func-lines: 30
+
+issues:
+  exclude-rules:
+    # Ignore long lines in comments
+    - linters:
+        - lll
+      source: "^//.*"
+
+    # Ignore error return value in test cleanup
+    - linters:
+        - errcheck
+      source: "defer.*Close"
+
+  max-issues-per-linter: 50
+  max-same-issues: 10
